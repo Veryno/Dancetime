@@ -7,7 +7,7 @@ const Library = () => {
         // upload
     };
     return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
         <div className="
             flex
             items-center
@@ -56,5 +56,3 @@ const Library = () => {
 }
 
 export default Library;
-
-//text red 50
