@@ -41,8 +41,9 @@ const Library = () => {
                     transition
                 "
             />
-        </div>  
-        <div className="flex
+        </div>
+        <div className="
+        flex
         flex-col
         gap-y-2
         mt-4
@@ -55,3 +56,5 @@ const Library = () => {
 }
 
 export default Library;
+
+//text red 50
