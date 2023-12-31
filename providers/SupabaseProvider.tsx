@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Database } from "../types_db"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { SupabaseContextProvider } from "@supabase/auth-helpers-react";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
 
 interface SupabaseProviderProps {
     children: React.ReactNode;
@@ -16,9 +16,9 @@ const SupabaseProvider: React.FC<SupabaseProviderProps> = ({
         createClientComponentClient<Database>()
     );
     return(
-        <SupabaseContextProvider supabaseClient={supabaseClient}>
+        <SessionContextProvider supabaseClient={supabaseClient}>
             {children}
-        </SupabaseContextProvider>
+        </SessionContextProvider>
     )
 }
 

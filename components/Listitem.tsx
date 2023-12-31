@@ -16,7 +16,7 @@ const ListItem: React.FC<ListItemProps> = ({
     href
 
 }) => {
-    const router = useRouter
+    const router = useRouter()
     const onClick = () => {
         //auth 
         router.push(href);
