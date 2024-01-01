@@ -127,18 +127,18 @@ const Header: React.FC<HeaderProps> = ({
                     {user ? (
                         <div className="
                             flex gap-x-4 items-center">
-                                <button 
+                                <Button 
                                     onClick={handleLogout}
-                                    className="px-6 py-2"
+                                    className="bg-white px-6 py-2"
                                 >
                                     Logout
-                                </button>
-                                <button 
+                                </Button>
+                                <Button 
                                     onClick={() => router.push('/account')}
-                                    className=""
+                                    className="bg-white"
                                 >
                                     <FaUserAlt />
-                                </button>
+                                </Button>
 
                         </div>
                     ) : (
