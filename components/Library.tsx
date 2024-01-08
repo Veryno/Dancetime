@@ -1,7 +1,7 @@
 "use client"
 import {TbPlaylist} from "react-icons/tb";
 import {AiOutlinePlus} from "react-icons/ai";
-import useAuthModal from "../hooks/UseAuthModal";
+import useAuthModal from "../hooks/useAuthModal";
 import {useUser} from "../hooks/useUser";
 import useUploadModal from "../hooks/UseUploadModal";
 
