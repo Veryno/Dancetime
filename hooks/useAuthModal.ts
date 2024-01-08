@@ -1,30 +1,15 @@
-import { Song } from "../types";
+import { create } from 'zustand';
 
-import usePlayer from "./usePlayer";
-import useSubscribeModal from "./useSubscribeModal";
-import useAuthModal from "./useAuthModal";
-import { useUser } from "./useUser";
+interface AuthModalStore {
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}
 
-const useOnPlay = (songs: Song[]) => {
-  const player = usePlayer();
-  const subscribeModal = useSubscribeModal();
-  const authModal = useAuthModal();
-  const { subscription, user } = useUser();
+const useAuthModal = create<AuthModalStore>((set) => ({
+  isOpen: false,
+  onOpen: () => set({ isOpen: true }),
+  onClose: () => set({ isOpen: false }),
+}));
 
-  const onPlay = (id: string) => {
-    if (!user) {
-      return authModal.onOpen();
-    }
-
-    if (!subscription) {
-      return subscribeModal.onOpen();
-    }
-
-    player.setId(id);
-    player.setIds(songs.map((song) => song.id));
-  }
-
-  return onPlay;
-};
-
-export default useOnPlay;
+export default useAuthModal;
