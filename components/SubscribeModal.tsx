@@ -1,65 +1,124 @@
-import Playlist from "@/components/MediaItem";
-import LikeButton from "@/components/LikeButton";
-import Input from "@/components/Input";
-import Header from "@/components/Header";
+"use client";
 
-const data = {
-  name: 'Liked Songs',
-  image: "https://misc.scdn.co/liked-songs/liked-songs-64.png",
-  author: 'Antonio'
+import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
+
+import useSubscribeModal from '@/hooks/useSubscribeModal';
+import { useUser } from '../hooks/useUser';
+import { postData } from '../libs/helpers';
+import { getStripe } from '../libs/stripeClient';
+import { Price, ProductWithPrice } from '@/types';
+
+import Modal from './Modal';
+import Button from './Button';
+
+interface SubscribeModalProps {
+  products: ProductWithPrice[];
 }
-const Search = () => {
-  return (
-    <div className="bg-neutral-900 rounded-lg h-full w-full overflow-hidden overflow-y-auto">
-      <Header className="from-bg-neutral-900">
-        <div className="mb-2 flex flex-col gap-y-6">
-          <h1 className="text-white text-3xl font-semibold">Search</h1>
-          <Input placeholder="What do you want to listen to?" />
-        </div>
-      </Header>
-      <div className="flex flex-col gap-y-2 w-full px-6">
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-        <div className="flex items-center gap-x-4 w-full">
-          <div className="flex-1"><Playlist {...data} /></div>
-          <div><LikeButton /></div>
-        </div>
-      </div>
+
+const formatPrice = (price: Price) => {
+  const priceString = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: price.currency,
+    minimumFractionDigits: 0
+  }).format((price?.unit_amount || 0) / 100);
+
+  return priceString;
+};
+
+
+const SubscribeModal: React.FC<SubscribeModalProps> = ({
+  products
+}) => {
+  const subscribeModal = useSubscribeModal();
+  const { user, isLoading, subscription } = useUser();
+
+  const [priceIdLoading, setPriceIdLoading] = useState<string>();
+
+  const onChange = (open: boolean) => {
+    if (!open) {
+      subscribeModal.onClose();
+    }
+  }
+
+  const handleCheckout = async (price: Price) => {
+    setPriceIdLoading(price.id);
+    if (!user) {
+      setPriceIdLoading(undefined);
+      return toast.error('Must be logged in');
+    }
+
+    if (subscription) {
+      setPriceIdLoading(undefined);
+      return toast('Already subscribed');
+    }
+
+    try {
+      const { sessionId } = await postData({
+        url: '/api/create-checkout-session',
+        data: { price }
+      });
+
+      const stripe = await getStripe();
+      stripe?.redirectToCheckout({ sessionId });
+    } catch (error) {
+      return toast.error((error as Error)?.message);
+    } finally {
+      setPriceIdLoading(undefined);
+    }
+  };
+
+  let content = (
+    <div className="text-center">
+      No products available.
     </div>
+  )
+
+  if (products.length) {
+    content = (
+      <div>
+        {products.map((product) => {
+          if (!product.prices?.length) {
+            return (
+              <div key={product.id}>
+                No prices available
+              </div>
+            );
+          }
+
+          return product.prices.map((price) => (
+            <Button 
+              key={price.id} 
+              onClick={() => handleCheckout(price)}
+              disabled={isLoading || price.id === priceIdLoading}
+              className="mb-4"
+            >
+              {`Subscribe for ${formatPrice(price)} a ${price.interval}`}
+            </Button>
+          ))
+        })}
+      </div>
+    )
+  }
+
+  if (subscription) {
+    content = (
+      <div className="text-center">
+        Already subscribed.
+      </div>
+    )
+  }
+
+  return (
+    <Modal
+      title="Only for premium users"
+      description="Listen to music with Spotify Premium"
+      isOpen={subscribeModal.isOpen}
+      onChange={onChange}
+    >
+      {content}
+    </Modal>
   );
 }
-export default Search;
+
+export default SubscribeModal;
