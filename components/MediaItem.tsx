@@ -1,101 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-import { useSessionContext } from "@supabase/auth-helpers-react";
+import Image from "next/image";
 
-import { useUser } from "../hooks/useUser";
-import useAuthModal from "../hooks/useAuthModal";
+import useLoadImage from "../hooks/useLoadImage";
+import { Song } from "@/types";
+import usePlayer from "@/hooks/usePlayer";
 
-interface LikeButtonProps {
-  songId: string;
-};
-
-const LikeButton: React.FC<LikeButtonProps> = ({
-  songId
-}) => {
-  const router = useRouter();
-  const {
-    supabaseClient
-  } = useSessionContext();
-  const authModal = useAuthModal();
-  const { user } = useUser();
-
-  const [isLiked, setIsLiked] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!user?.id) {
-      return;
-    }
-  
-    const fetchData = async () => {
-      const { data, error } = await supabaseClient
-        .from('liked_songs')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('song_id', songId)
-        .single();
-
-      if (!error && data) {
-        setIsLiked(true);
-      }
-    }
-
-    fetchData();
-  }, [songId, supabaseClient, user?.id]);
-
-  const Icon = isLiked ? AiFillHeart : AiOutlineHeart;
-
-  const handleLike = async () => {
-    if (!user) {
-      return authModal.onOpen();
-    }
-
-    if (isLiked) {
-      const { error } = await supabaseClient
-        .from('liked_songs')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('song_id', songId)
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        setIsLiked(false);
-      }
-    } else {
-      const { error } = await supabaseClient
-        .from('liked_songs')
-        .insert({
-          song_id: songId,
-          user_id: user.id
-        });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        setIsLiked(true);
-        toast.success('Success');
-      }
-    }
-
-    router.refresh();
-  }
-
-  return (
-    <button 
-      className="
-        cursor-pointer 
-        hover:opacity-75 
-        transition
-      "
-      onClick={handleLike}
-    >
-      <Icon color={isLiked ? '#22c55e' : 'white'} size={25} />
-    </button>
-  );
+interface MediaItemProps {
+  data: Song;
+  onClick?: (id: string) => void;
 }
 
-export default LikeButton;
+const MediaItem: React.FC<MediaItemProps> = ({
+  data,
+  onClick,
+}) => {
+  const player = usePlayer();
+  const imageUrl = useLoadImage(data);
+
+  const handleClick = () => {
+    if (onClick) {
+      return onClick(data.id);
+    }
+  
+    return player.setId(data.id);
+  };
+
+  return ( 
+    <div
+      onClick={handleClick}
+      className="
+        flex 
+        items-center 
+        gap-x-3 
+        cursor-pointer 
+        hover:bg-neutral-800/50 
+        w-full 
+        p-2 
+        rounded-md
+      "
+    >
+      <div 
+        className="
+          relative 
+          rounded-md 
+          min-h-[48px] 
+          min-w-[48px] 
+          overflow-hidden
+        "
+      >
+        <Image
+          fill
+          src={imageUrl || "/images/music-placeholder.png"}
+          alt="MediaItem"
+          className="object-cover"
+        />
+      </div>
+      <div className="flex flex-col gap-y-1 overflow-hidden">
+        <p className="text-white truncate">{data.title}</p>
+        <p className="text-neutral-400 text-sm truncate">
+          By {data.author}
+        </p>
+      </div>
+    </div>
+  );
+}
+ 
+export default MediaItem;
