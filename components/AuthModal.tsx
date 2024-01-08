@@ -1,45 +1,38 @@
 "use client";
 
-import React, {useEffect} from 'react';
-import {Auth} from '@supabase/auth-ui-react';
-import {ThemeSupa} from '@supabase/auth-ui-shared';
-import {useSessionContext, useSupabaseClient} from '@supabase/auth-helpers-react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 
-import UseAuthModal from "../hooks/UseAuthModal";
+import useAuthModal from "@/app/hooks/useAuthModal";
+import { getURL } from '@/app/libs/helpers';
 
 import Modal from './Modal';
 
 const AuthModal = () => {
-  const {session} = useSessionContext();
-  const router = useRouter();
-  const {onClose, isOpen} = UseAuthModal();
-  const supabaseClient = useSupabaseClient();
+  const authModal = useAuthModal();
 
-  useEffect(() => {
-    if (session) {
-      router.refresh();
-      onClose();
-    }
-  }, [session, router, onClose]);
+  const supabaseClient = useSupabaseClient();
 
   const onChange = (open: boolean) => {
     if (!open) {
-      onClose();
+      authModal.onClose();
     }
   }
-
 
   return (
     <Modal 
       title="Welcome back" 
       description="Login to your account." 
-      isOpen={isOpen} 
-      onChange={() => {}} 
+      isOpen={authModal.isOpen} 
+      onChange={onChange} 
     >
       <Auth
         supabaseClient={supabaseClient}
         providers={['github']}
+        redirectTo={getURL()}
+        magicLink={true}
         appearance={{
           theme: ThemeSupa,
           variables: {
