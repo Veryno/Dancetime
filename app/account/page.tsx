@@ -1,19 +1,15 @@
-"use client";
-
 import { useState } from "react";
 
-import Header from "@/app/components/Header";
-import { useUser } from "@/app/hooks/useUser";
-import Button from "@/app/components/Button";
-import useSubscribeModal from "@/app/hooks/useSubscribeModal";
-import { postData } from "@/app/libs/helpers";
+import Header from "@/components/Header";
+import { useUser } from "@/hooks/useUser";
+import Button from "@/components/Button";
+import useSubscribeModal from "@/hooks/useSubscribeModal";
+import { postData } from "@/libs/helpers";
 
 const Account = () => {
   const subscribeModal = useSubscribeModal();
   const { isLoading, subscription, userDetails } = useUser();
-
   const [loading, setLoading] = useState(false);
-
   const redirectToCustomerPortal = async () => {
     setLoading(true);
     try {
@@ -26,7 +22,6 @@ const Account = () => {
     }
     setLoading(false);
   };
-
   return ( 
     <div className="bg-neutral-900 rounded-lg h-full w-full overflow-hidden overflow-y-auto">
       <Header className="from-bg-neutral-900">
@@ -64,5 +59,5 @@ const Account = () => {
     </div>
    );
 }
-
+ 
 export default Account;

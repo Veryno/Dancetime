@@ -1,23 +1,37 @@
-import Playlist from "@/components/MediaItem";
-import LikeButton from "@/components/LikeButton";
-import Input from "@/components/Input";
+import Image from "next/image";
+
 import Header from "@/components/Header";
+import LikeButton from "@/components/LikeButton";
+import Playlist from "@/components/MediaItem";
 
 const data = {
   name: 'Liked Songs',
   image: "https://misc.scdn.co/liked-songs/liked-songs-64.png",
   author: 'Antonio'
 }
-const Search = () => {
+const PlaylistId = () => {
   return (
     <div className="bg-neutral-900 rounded-lg h-full w-full overflow-hidden overflow-y-auto">
-      <Header className="from-bg-neutral-900">
-        <div className="mb-2 flex flex-col gap-y-6">
-          <h1 className="text-white text-3xl font-semibold">Search</h1>
-          <Input placeholder="What do you want to listen to?" />
+      <Header>
+        <div className="mt-20">
+          <div className="flex flex-col md:flex-row items-center gap-x-5">
+            <div className="relative h-32 w-32 lg:h-48 lg:w-48">
+              <Image
+                className="object-cover"
+                fill
+                src="https://seed-mix-image.spotifycdn.com/v6/img/artist/1Xyo4u8uXC1ZmMpatF05PJ/en/default"
+                alt="Playlist"
+              />
+            </div>
+            <div className="flex flex-col gap-y-2 mt-4 md:mt-0 overflow-hidden">
+              <p className="hidden md:block font-semibold text-sm">Playlist</p>
+              <h1 className="text-white text-4xl sm:text-5xl lg:text-7xl font-bold truncate">The Weeknd Mix</h1>
+              <p className="text-sm font-light">By Antonio</p>
+            </div>
+          </div>
         </div>
       </Header>
-      <div className="flex flex-col gap-y-2 w-full px-6">
+      <div className="flex flex-col gap-y-2 w-full p-6">
         <div className="flex items-center gap-x-4 w-full">
           <div className="flex-1"><Playlist {...data} /></div>
           <div><LikeButton /></div>
@@ -62,4 +76,4 @@ const Search = () => {
     </div>
   );
 }
-export default Search;
+export default PlaylistId;
